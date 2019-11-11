@@ -1,29 +1,28 @@
-#define LENGTH 10
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
 #include "funcoes.h"
 
-int main(int argc, char const *argv[]){
-    if (argc<5){
-        printf("Verifique se escreveu a entrada corretamente! Tente de novo.");
-        exit(1);
-    }
+int main(int argc, const char *argv[]){
     
-   
+    char* algorithm = (char*)malloc(strlen(*argv)+1);
+    strcpy(algorithm,(*argv)+13);
+    //printf("%s", algorithm);
+    char* filename = (char*)calloc(strlen(argv[2]),sizeof(char*));
+    strcpy(filename, argv[2]);
     
-    char *algorithm = ( char* )calloc( strlen(argv[1]),  sizeof( char* ) );
-    char *filename = ( char* )calloc( strlen(argv[2]),  sizeof( char* ) );
-    char *filePath = ( char* )calloc( 1024,  sizeof( char* ) );
+    char *filePath = (char*)malloc(1024*sizeof(char));
+    sprintf(filePath, "logs%s",filename);
+    //printf("%s", filename);
+    
     int pageSize = atoi(argv[3]);
     int memSize = atoi(argv[4]);
 
-    strcpy( algorithm, argv[1] );
-    strcpy( filename, argv[2] );
-
-	if(pageSize >=2 && pageSize <= 64){
+	if(pageSize >= 2 && pageSize <= 64){
 		pageSize = pageSize * 1024;
+        //printf("%i page size\n",pageSize);
+    
 		
 	}else{
 		printf("ERRO, tente novamente pois Page Size deve ser entre 2 e 64.\n");
@@ -32,25 +31,21 @@ int main(int argc, char const *argv[]){
 		
 	if(memSize >= 128 && memSize <= 16384 ){
 		memSize = memSize * 1024;
-		
-	}else{
-		printf("ERRO, tente novamente pois Page Size deve ser entre 128 e 16384.\n");
-		return 0;
-	}
-	
-	if(strcmp(algorithm, "lru") && strcmp(algorithm, "nru") && strcmp(algorithm,"segunda_chance")){
-		printf("ERRO: O algoritmo deve ser lru, nru ou segunda_chance.");
-		return 0;	
-	}
-
+		//printf("%i",memSize);
     
-    FILE *file = fopen(filePath, "r");
+	}else{
+		printf("ERRO, tente novamente pois Memory size deve ser entre 128 e 16384.\n");
+		return 0;
+	} 
+       
+    FILE *file = fopen("/home/ana/Documentos/2019_2/SO/TP_2/logs", "r");
+    //printf("ola %c",algorithm);
     int numPages = memSize/pageSize;
     Table *virtualMemory = newtable(&numPages);
-
+    
     Queue *principalMemory = newQueue(&memSize);
-    int adress, shift = 0, temporary, y;
-    int adress_sh, count1=0,flagright=0, pagerights=0, indice, pagefaults=0, pagedirty=0, time=0;
+    unsigned int adress, shift = 0, temporary, y;
+    int adress_sh, count1=0,flagright=0, pagerights=0, indice, pagefaults=0, pagedirty=0, time=0, count;
     char row;
 
     temporary = pageSize;
@@ -60,7 +55,7 @@ int main(int argc, char const *argv[]){
     }
     
 
-    if (!strcmp(algorithm, "lru")){
+    if(!strcmp(algorithm, "lru")){
         while (!feof(file)){
             fscanf(file, "%x %c", &adress, &row);
             adress_sh = adress >> shift;
@@ -69,7 +64,7 @@ int main(int argc, char const *argv[]){
             
             if(virtualMemory->item_arqs[indice]->next == NULL){
                 pagefaults++;
-
+                
                 Value_queue *x = newvaluequeue();
                 x->offset = adress_sh;
                 insert(principalMemory, x);
@@ -156,20 +151,15 @@ int main(int argc, char const *argv[]){
 
 
         printf("\nExecutando o simulador...\n");
-	    printf("Tamanho da memória física: %iKB\n", memSize);
+	    printf("Tamanho da memória física: %iKB\n", memSize/1024);
 	    printf("Tamanho das páginas: %iKB\n", pageSize/1024);
-    	printf("Tecnica de substiruição: %s\n", algorithm);
+    	printf("Nome da política de substituição: %s\n", algorithm);
+        printf("Nome do do arquivo: %s\n", filename);
 	    printf("Número de páginas: %i\n", numPages);
 	    printf("Númerro page faults: %i\n", pagefaults);
-        printf("Númerro page rights: %i\n", pagerights);
+        printf("Númerro páginas ludas: %i\n", pagerights);
         printf("Númerro page dirty: %i\n", pagedirty);
-        printf("Número count Memória Principal: %i\n", count1);
-	   // printf("Operacoes de leitura: %i\n", reads);
-	    //printf("Operacoes de escrita: %i\n", writes);
-	   // printf("Page hits: %i\n", hits);
-	    //printf("Page misses: %i\n", misses);
-	   // printf("Numero de writebacks: %i\n", writebacks);
-	    //printf("Taxa de page fault: %f%% \n", faults/writes*100);
+        printf("Número count Memória Principal: %i\n", count); 
         
         
 

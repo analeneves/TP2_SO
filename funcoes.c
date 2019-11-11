@@ -1,5 +1,6 @@
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "funcoes.h"
 
 Item_arq* additem(unsigned *a, Input *in){ //imput de merda
@@ -59,7 +60,7 @@ Value_queue* newvaluequeue(){
     
 }
 
-void insert(Queue *n, Value_queue *a){
+void insert(Queue *n, Value_queue *v){
     n->last++;
     n->count++;
 
@@ -69,7 +70,7 @@ void insert(Queue *n, Value_queue *a){
     
     if (n->values == NULL){
         printf("Valor nulo! Tente novamente.");
-        n->values[n->last] = *a;
+        n->values[n->last] = *v;
     }
     
 }
