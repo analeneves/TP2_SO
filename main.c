@@ -2,7 +2,6 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include "funcoes.h"
 
 int main(int argc, const char *argv[]){
@@ -26,6 +25,7 @@ int main(int argc, const char *argv[]){
     
 		
 	}else{
+        printf("Tente novamente, valores Page size tem que ser entre 2 e 64.\n");
 		exit(1);
 	}
 		
@@ -34,17 +34,19 @@ int main(int argc, const char *argv[]){
 		//printf("%i",memSize);
     
 	}else{
-		exit(1);
+        printf("Tente novamente, valores Memory size tem que ser entre 128 e 16384.\n");
+        exit(1);
 	} 
        
     FILE *file = fopen(filePath, "rw");
     //sprintf(filePath, "logs%s",file);
     int numPages = memSize/pageSize;
+    
     Table *virtualMemory = newtable(&numPages);
     
     Queue *principalMemory = newQueue(&memSize);
     unsigned int adress=0, shift = 0, temporary=0, y=0;
-    int adress_sh, count1=0,flagright=0, pagerights, indice=0, pagefaults, pagedirty=0, time=0, count=0;
+    int adress_sh, count1=0,flagright=0, pagerights, indice=0, pagefaults, pagedirty, time=0, count=0;
     char row;
 
     temporary = pageSize;
@@ -64,7 +66,7 @@ int main(int argc, const char *argv[]){
             
             if(virtualMemory->item_arqs[indice]->next == NULL){
                 pagefaults++;
-                
+                //printf("%d",pagefaults);
                 Value_queue *x = newvaluequeue();
                 x->offset = adress_sh;
                 insert(principalMemory, x);
@@ -82,11 +84,12 @@ int main(int argc, const char *argv[]){
                     if (prox->next->valor->referenced_pages == adress_sh && prox->next->valor->pres_absent_pages == 1){
                         flagright = 1;
                         pagerights++;
+                        //pagedirty++;
                     } else if (prox->next->valor->referenced_pages == adress_sh && prox->next->valor->pres_absent_pages == 0){
                         prox->next->valor->last_access = time;
                         prox->next->valor->altered=1;
                         prox->next->valor->pres_absent_pages = 1;
-
+                        
                         int indice2 = principalMemory->values[principalMemory->first].offset;
                         indice2=indice2%virtualMemory->size;
 
@@ -102,7 +105,7 @@ int main(int argc, const char *argv[]){
                         pagefaults++;
                         
                         pagedirty++;
-                        
+                       
                         Value_queue *x = newvaluequeue();
                         x->offset = adress;
                         insert(principalMemory, x);
@@ -142,7 +145,7 @@ int main(int argc, const char *argv[]){
                 }
                             
             } time++;
-            
+            //pagedirty++;
             }
 
         } else if (strcmp(algorithm,"nru") == 1){
@@ -150,8 +153,8 @@ int main(int argc, const char *argv[]){
         } else if (strcmp(algorithm,"segunda_chance") == 1){
 
         }
-
-
+        //pagedirty++;
+        pagedirty = pagerights - numPages;
         printf("\nExecutando o simulador...\n");
 	    printf("Tamanho da memória física: %iKB\n", memSize/1024);
 	    printf("Tamanho das páginas: %iKB\n", pageSize/1024);
@@ -159,7 +162,7 @@ int main(int argc, const char *argv[]){
         printf("Nome do do arquivo: %s\n", filename);
 	    printf("Número de páginas: %i\n", numPages);
         printf("Número páginas lidas: %i\n",pagerights);
-        printf("Número páginas escritas: %d\n", pagedirty);
+        printf("Número páginas escritas: %i\n", pagedirty);
         //printf("Númerro page faults: %i\n", pagefaults);
         //printf("Número count Memória Principal: %i\n", count); 
         
