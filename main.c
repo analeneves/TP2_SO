@@ -2,6 +2,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "funcoes.h"
 
 int main(int argc, const char *argv[]){
@@ -25,8 +26,7 @@ int main(int argc, const char *argv[]){
     
 		
 	}else{
-		printf("ERRO, tente novamente pois Page Size deve ser entre 2 e 64.\n");
-		return 0;
+		exit(1);
 	}
 		
 	if(memSize >= 128 && memSize <= 16384 ){
@@ -34,18 +34,17 @@ int main(int argc, const char *argv[]){
 		//printf("%i",memSize);
     
 	}else{
-		printf("ERRO, tente novamente pois Memory size deve ser entre 128 e 16384.\n");
-		return 0;
+		exit(1);
 	} 
        
-    FILE *file = fopen("/home/ana/Documentos/2019_2/SO/TP_2/logs", "r");
-    //printf("ola %c",algorithm);
+    FILE *file = fopen(filePath, "rw");
+    //sprintf(filePath, "logs%s",file);
     int numPages = memSize/pageSize;
     Table *virtualMemory = newtable(&numPages);
     
     Queue *principalMemory = newQueue(&memSize);
-    unsigned int adress, shift = 0, temporary, y;
-    int adress_sh, count1=0,flagright=0, pagerights=0, indice, pagefaults=0, pagedirty=0, time=0, count;
+    unsigned int adress=0, shift = 0, temporary=0, y=0;
+    int adress_sh, count1=0,flagright=0, pagerights, indice=0, pagefaults, pagedirty=0, time=0, count=0;
     char row;
 
     temporary = pageSize;
@@ -53,9 +52,10 @@ int main(int argc, const char *argv[]){
         temporary = temporary>>1;
         shift++;
     }
+    //printf("%i", temporary);
     
-
-    if(!strcmp(algorithm, "lru")){
+    //printf("%s", algorithm);
+    if(strcmp(algorithm, "lru") == 1){
         while (!feof(file)){
             fscanf(file, "%x %c", &adress, &row);
             adress_sh = adress >> shift;
@@ -100,7 +100,9 @@ int main(int argc, const char *argv[]){
 
                         removeQueue(principalMemory);
                         pagefaults++;
+                        
                         pagedirty++;
+                        
                         Value_queue *x = newvaluequeue();
                         x->offset = adress;
                         insert(principalMemory, x);
@@ -143,9 +145,9 @@ int main(int argc, const char *argv[]){
             
             }
 
-        } else if (!strcmp(algorithm,"nru")){
+        } else if (strcmp(algorithm,"nru") == 1){
 
-        } else if (!strcmp(algorithm,"segunda_chance")){
+        } else if (strcmp(algorithm,"segunda_chance") == 1){
 
         }
 
@@ -156,10 +158,10 @@ int main(int argc, const char *argv[]){
     	printf("Nome da política de substituição: %s\n", algorithm);
         printf("Nome do do arquivo: %s\n", filename);
 	    printf("Número de páginas: %i\n", numPages);
-	    printf("Númerro page faults: %i\n", pagefaults);
-        printf("Númerro páginas ludas: %i\n", pagerights);
-        printf("Númerro page dirty: %i\n", pagedirty);
-        printf("Número count Memória Principal: %i\n", count); 
+        printf("Número páginas lidas: %i\n",pagerights);
+        printf("Número páginas escritas: %d\n", pagedirty);
+        //printf("Númerro page faults: %i\n", pagefaults);
+        //printf("Número count Memória Principal: %i\n", count); 
         
         
 
