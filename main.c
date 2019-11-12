@@ -156,8 +156,5 @@ int main(int argc, const char *argv[]){
         printf("Número páginas escritas: %i\n", pagedirty);
         //printf("Númerro page faults: %i\n", pagefaults);
         //printf("Número count Memória Principal: %i\n", count); 
-        
-        
-
 return 0;        
     }
