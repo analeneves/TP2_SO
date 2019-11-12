@@ -7,29 +7,26 @@
 int main(int argc, const char *argv[]){
     
     char* algorithm = (char*)malloc(strlen(*argv)+1);
-    strcpy(algorithm,(*argv)+13);
-    //printf("%s", algorithm);
+    strcpy(algorithm,(*argv)+13); //para encontrar o valor " " correspondente na entrada
+    
     char* filename = (char*)calloc(strlen(argv[2]),sizeof(char*));
     strcpy(filename, argv[2]);
     
     char *filePath = (char*)malloc(1024*sizeof(char));
-    sprintf(filePath, "logs%s",filename);
-    //printf("%s", filename);
+    sprintf(filePath, "logs%s",filename); //logs é a pasta onde se encontram os arquivos de teste ".log"
     
     int pageSize = atoi(argv[3]);
     int memSize = atoi(argv[4]);
 
-	if(pageSize >= 2 && pageSize <= 64){
-		pageSize = pageSize * 1024;
-        //printf("%i page size\n",pageSize);
-    
+	if(pageSize >= 2 && pageSize <= 64){ //verificação tamanho da página que deve ser entre 2 e 64
+		pageSize = pageSize * 1024;    
 		
 	}else{
         printf("Tente novamente, valores Page size tem que ser entre 2 e 64.\n");
 		exit(1);
 	}
 		
-	if(memSize >= 128 && memSize <= 16384 ){
+	if(memSize >= 128 && memSize <= 16384 ){ //verificação tamanho da memória que deve ser entre 128 e 16384
 		memSize = memSize * 1024;
 		//printf("%i",memSize);
     
@@ -38,13 +35,12 @@ int main(int argc, const char *argv[]){
         exit(1);
 	} 
        
-    FILE *file = fopen(filePath, "rw");
-    //sprintf(filePath, "logs%s",file);
-    int numPages = memSize/pageSize;
+    FILE *file = fopen(filePath, "r"); //abertura do arquivo segundo o caminho, filePath
+    int numPages = memSize/pageSize; //numero de páginas será sempre o tamanho da memória
+                                    //dividido pelo tamanho das páginas
     
-    Table *virtualMemory = newtable(&numPages);
-    
-    Queue *principalMemory = newQueue(&memSize);
+    Table *virtualMemory = newtable(&numPages);//é criada uma tabela com a memoria virtual
+    Queue *principalMemory = newQueue(&memSize);//é criada uma fila com a memória principal
     unsigned int adress=0, shift = 0, temporary=0, y=0;
     int adress_sh, count1=0,flagright=0, pagerights, indice=0, pagefaults, pagedirty, time=0, count=0;
     char row;
@@ -54,11 +50,9 @@ int main(int argc, const char *argv[]){
         temporary = temporary>>1;
         shift++;
     }
-    //printf("%i", temporary);
-    
-    //printf("%s", algorithm);
-    if(strcmp(algorithm, "lru") == 1){
-        while (!feof(file)){
+                                        //primeiro if para verificar se o algoritmo será o LRU
+    if(strcmp(algorithm, "lru") == 1){//no strcmp, se == 1, significa que são iguais
+        while (!feof(file)){          
             fscanf(file, "%x %c", &adress, &row);
             adress_sh = adress >> shift;
             indice = adress_sh % virtualMemory->size;
@@ -66,7 +60,7 @@ int main(int argc, const char *argv[]){
             
             if(virtualMemory->item_arqs[indice]->next == NULL){
                 pagefaults++;
-                //printf("%d",pagefaults);
+               
                 Value_queue *x = newvaluequeue();
                 x->offset = adress_sh;
                 insert(principalMemory, x);
@@ -84,7 +78,7 @@ int main(int argc, const char *argv[]){
                     if (prox->next->valor->referenced_pages == adress_sh && prox->next->valor->pres_absent_pages == 1){
                         flagright = 1;
                         pagerights++;
-                        //pagedirty++;
+
                     } else if (prox->next->valor->referenced_pages == adress_sh && prox->next->valor->pres_absent_pages == 0){
                         prox->next->valor->last_access = time;
                         prox->next->valor->altered=1;
@@ -140,12 +134,9 @@ int main(int argc, const char *argv[]){
                     in->last_access = time;
                     in->altered = 0;
                     in->pres_absent_pages = 1;
-
                     prox->next = additem(&adress_sh, in);
-                }
-                            
+                }       
             } time++;
-            //pagedirty++;
             }
 
         } else if (strcmp(algorithm,"nru") == 1){
