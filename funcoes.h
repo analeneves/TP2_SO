@@ -35,7 +35,7 @@ Table * newtable(int *size);
 void deleteitem(Item_arq *j);
 void deletetable(Table *t_hash);
 
-//************************************************8
+//************************************************//
 Queue *newQueue(int *size);
 Value_queue *newvaluequeue();
 void insert(Queue *n, Value_queue *v);
